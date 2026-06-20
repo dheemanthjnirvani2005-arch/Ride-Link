@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ride & Ship</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .success-bounce { animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(-5%); } 50% { transform: translateY(5%); } }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <!-- Login Container -->
+    <div id="loginContainer" class="w-full max-w-sm glass rounded-3xl shadow-2xl overflow-hidden fade-in">
+        <div class="bg-indigo-900 p-8 text-center">
+            <div class="w-16 h-16 bg-white rounded-full mx-auto flex items-center justify-center mb-4 shadow-lg">
+                <i class="fa-solid fa-location-arrow text-3xl text-indigo-600"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-white">Welcome Back</h1>
+            <p class="text-indigo-200 text-sm">Ride or ship, we get it there.</p>
+        </div>
+        <div class="p-8">
+            <div class="relative mb-6">
+                <i class="fa-solid fa-user absolute left-3 top-3 text-gray-400"></i>
+                <input type="text" id="loginName" placeholder="Enter your name" class="w-full pl-10 pr-4 py-2 border-b-2 border-gray-200 focus:border-indigo-600 outline-none transition-colors bg-transparent placeholder-gray-400 text-gray-800">
+            </div>
+            <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition transform hover:scale-[1.02] active:scale-95">
+                Get Started
+            </button>
+        </div>
+    </div>
+
+    <!-- App Container -->
+    <div id="appContainer" class="w-full max-w-sm hidden fade-in relative">
+        <div class="glass rounded-3xl shadow-2xl overflow-hidden min-h-[500px] flex flex-col relative">
+            
+            <!-- Booking Form (Unified View) -->
+            <div id="bookingForm" class="p-6 flex-grow flex flex-col">
+                
+                <!-- Integrated Minimal Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">New Booking</h2>
+                        <p class="text-xs text-gray-500">Hi, <span id="welcomeUser" class="font-bold text-indigo-600">User</span></p>
+                    </div>
+                    <button onclick="logout()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
+                        <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                    </button>
+                </div>
+
+                <div class="bg-gray-100 p-1 rounded-xl flex mb-6 shadow-inner">
+                    <button onclick="setTab('ride')" id="btnRide" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-white text-indigo-600">
+                        <i class="fa-solid fa-car mr-2"></i> Ride
+                    </button>
+                    <button onclick="setTab('courier')" id="btnCourier" class="flex-1 py-2 rounded-lg text-sm font-bold text-gray-500 hover:text-gray-700 transition-all">
+                        <i class="fa-solid fa-box-open mr-2"></i> Package
+                    </button>
+                </div>
+
+                <!-- Ride Inputs -->
+                <div id="rideInputs" class="space-y-4 fade-in">
+                    <div class="relative">
+                        <div class="absolute left-3 top-3 w-8 flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-circle-dot text-green-500 text-xs"></i>
+                            <div class="h-8 w-0.5 bg-gray-300"></div>
+                            <i class="fa-solid fa-location-dot text-red-500"></i>
+                        </div>
+                        <div class="pl-10 space-y-4">
+                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-200">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pick Up</label>
+                                <select id="source" class="w-full bg-transparent font-semibold text-gray-700 outline-none cursor-pointer"></select>
+                            </div>
+                            <div class="bg-gray-50 p-2 rounded-lg border border-gray-200">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Drop Off</label>
+                                <select id="destination" class="w-full bg-transparent font-semibold text-gray-700 outline-none cursor-pointer"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="bookRide()" class="w-full mt-6 bg-black text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-800 transition transform active:scale-95">
+                        Request Ride
+                    </button>
+                </div>
+
+                <!-- Courier Inputs -->
+                <div id="courierInputs" class="space-y-4 hidden fade-in">
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4">
+                        <p class="text-xs text-blue-800 font-medium"><i class="fa-solid fa-info-circle mr-1"></i> Drivers will pick up your item.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs font-bold text-gray-500">FROM</label>
+                            <select id="c_source" class="w-full p-3 bg-gray-50 rounded-lg border-none shadow-sm font-semibold cursor-pointer"></select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500">TO</label>
+                            <select id="c_destination" class="w-full p-3 bg-gray-50 rounded-lg border-none shadow-sm font-semibold cursor-pointer"></select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500">SIZE</label>
+                            <select id="c_size" class="w-full p-3 bg-gray-50 rounded-lg border-none shadow-sm font-semibold cursor-pointer">
+                                <option>Small (Shoebox)</option>
+                                <option>Medium (Backpack)</option>
+                                <option>Large (Suitcase)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="bookCourier()" class="w-full mt-6 bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 transition transform active:scale-95">
+                        Confirm Package
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Page -->
+            <div id="statusPage" class="hidden flex-col h-full relative fade-in">
+                <!-- Map Background -->
+                <div class="absolute inset-0 bg-gray-200 opacity-50 z-0 flex items-center justify-center overflow-hidden">
+                    <i class="fa-solid fa-map text-9xl text-gray-300 opacity-50 rotate-12"></i>
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white"></div>
+                </div>
+
+                <div class="relative z-10 flex flex-col justify-end h-full p-4">
+                    <div class="bg-white rounded-3xl shadow-2xl p-6 mb-4 border border-gray-100">
+                        <div class="flex justify-center -mt-12 mb-4">
+                            <div class="w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center relative">
+                                <span class="absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-20 animate-ping"></span>
+                                <i id="statusIcon" class="fa-solid fa-car text-3xl text-indigo-600"></i>
+                            </div>
+                        </div>
+
+                        <h2 id="statusTitle" class="text-center text-xl font-bold text-gray-900">Looking for drivers...</h2>
+                        <p id="statusPrice" class="text-center text-xl font-bold text-indigo-600 my-1"></p>
+                        <p id="statusDesc" class="text-center text-sm text-gray-500 mb-6">Hold tight, we are connecting you.</p>
+
+                        <div class="flex justify-between items-center text-xs font-bold text-gray-400 mb-6 px-2">
+                            <div class="flex flex-col items-center gap-1 text-indigo-600">
+                                <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
+                                <span>Booked</span>
+                            </div>
+                            <div class="h-0.5 w-full bg-gray-200 mx-2"></div>
+                            <div id="stepAssigned" class="flex flex-col items-center gap-1">
+                                <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                                <span>Driver</span>
+                            </div>
+                            <div class="h-0.5 w-full bg-gray-200 mx-2"></div>
+                            <div class="flex flex-col items-center gap-1">
+                                <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                                <span>Done</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-xl p-4 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                <i class="fa-solid fa-id-card"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase">Driver</p>
+                                <p id="driverText" class="font-bold text-gray-800">Matching...</p>
+                            </div>
+                        </div>
+                        
+                        <button onclick="cancelJob()" class="w-full mt-4 bg-white border border-red-200 text-red-500 font-bold py-3 rounded-xl hover:bg-red-50 transition">
+                            Cancel Request
+                        </button>
+                    </div>
+
+                    <!-- Pool Offer -->
+                    <div id="poolOffer" class="hidden transform transition-all duration-500 translate-y-full">
+                        <div class="bg-emerald-900 text-white rounded-2xl p-4 shadow-xl border-2 border-emerald-400">
+                            <div class="flex items-start gap-3">
+                                <div class="bg-emerald-500 p-2 rounded-lg text-white">
+                                    <i class="fa-solid fa-tags"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <h3 class="font-bold text-sm">Match Found! Save 10%</h3>
+                                    <p class="text-xs text-emerald-200 mt-1">A package is on your route. Share the ride?</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 mt-4">
+                                <button onclick="answerPool(true)" class="flex-1 bg-white text-emerald-900 font-bold py-2 rounded-lg text-sm hover:bg-emerald-50 transition">
+                                    Accept Deal
+                                </button>
+                                <button onclick="answerPool(false)" class="flex-1 bg-transparent border border-emerald-700 text-emerald-200 font-bold py-2 rounded-lg text-sm hover:bg-emerald-800 transition">
+                                    No Thanks
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Page -->
+            <div id="successPage" class="hidden flex-col h-full items-center justify-center p-6 text-center fade-in">
+                <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-inner success-bounce">
+                    <i class="fa-solid fa-check text-4xl text-green-600"></i>
+                </div>
+                <h2 id="successTitle" class="text-3xl font-bold text-gray-800 mb-2">Success!</h2>
+                <p id="successDesc" class="text-gray-500 mb-8">Your trip has been completed successfully.</p>
+                <div class="w-full bg-gray-200 rounded-full h-1.5 mb-4 overflow-hidden">
+                    <div class="bg-green-500 h-1.5 rounded-full animate-[width_5s_linear]" style="width: 100%; transition: width 5s linear;"></div>
+                </div>
+                <p class="text-xs text-gray-400 uppercase tracking-widest font-bold">Redirecting...</p>
+            </div>
+            
+            <div id="msg" class="absolute bottom-4 left-0 right-0 text-center text-xs font-bold text-red-500 p-2"></div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = "http://127.0.0.1:9000";
+        // Locations: Bengaluru
+        const LOCATIONS = [
+            "Koramangala", "Indiranagar", "Whitefield", "HSR Layout", "Electronic City",
+            "Jayanagar", "JP Nagar", "Malleswaram", "Hebbal", "MG Road",
+            "Marathahalli", "Banashankari", "BTM Layout", "Yelahanka", "Majestic"
+        ];
+        let currentUser = sessionStorage.getItem('user');
+        let currentJobId = null;
+        let currentJobType = 'ride'; 
+        let lastJobStatus = null; 
+        let isCancelling = false; 
+
+        function init() {
+            const opts = LOCATIONS.map(l => `<option>${l}</option>`).join('');
+            ['source','destination','c_source','c_destination'].forEach(id => document.getElementById(id).innerHTML = opts);
+            // Default selections
+            document.getElementById('destination').value = LOCATIONS[3]; 
+            document.getElementById('c_destination').value = LOCATIONS[4]; 
+
+            if(currentUser) showApp();
+            else document.getElementById('loginContainer').style.display = 'block';
+        }
+
+        function login() {
+            const name = document.getElementById('loginName').value;
+            if(!name) return;
+            sessionStorage.setItem('user', name);
+            currentUser = name;
+            document.getElementById('loginContainer').style.display = 'none';
+            showApp();
+        }
+
+        function logout() { sessionStorage.clear(); location.reload(); }
+
+        function showApp() {
+            document.getElementById('appContainer').style.display = 'block';
+            document.getElementById('welcomeUser').innerText = currentUser;
+            pollStatus();
+            setInterval(pollStatus, 4000);
+        }
+
+        function setTab(t) {
+            const rideView = document.getElementById('rideInputs');
+            const courierView = document.getElementById('courierInputs');
+            const btnRide = document.getElementById('btnRide');
+            const btnCourier = document.getElementById('btnCourier');
+
+            if(t === 'ride') {
+                rideView.style.display = 'block';
+                courierView.style.display = 'none';
+                btnRide.className = "flex-1 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-white text-indigo-600";
+                btnCourier.className = "flex-1 py-2 rounded-lg text-sm font-bold text-gray-500 hover:text-gray-700 transition-all";
+            } else {
+                rideView.style.display = 'none';
+                courierView.style.display = 'block';
+                btnRide.className = "flex-1 py-2 rounded-lg text-sm font-bold text-gray-500 hover:text-gray-700 transition-all";
+                btnCourier.className = "flex-1 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-white text-blue-600";
+            }
+        }
+
+        function resetView() {
+            document.getElementById('bookingForm').style.display = 'flex';
+            document.getElementById('statusPage').style.display = 'none';
+            document.getElementById('successPage').style.display = 'none';
+            currentJobId = null;
+            lastJobStatus = null;
+            isCancelling = false;
+        }
+
+        function showSuccess() {
+            document.getElementById('bookingForm').style.display = 'none';
+            document.getElementById('statusPage').style.display = 'none';
+            const sPage = document.getElementById('successPage');
+            sPage.style.display = 'flex';
+
+            if(currentJobType === 'ride') {
+                document.getElementById('successTitle').innerText = "Ride Completed!";
+                document.getElementById('successDesc').innerText = "You have arrived at your destination.";
+            } else {
+                document.getElementById('successTitle').innerText = "Package Delivered!";
+                document.getElementById('successDesc').innerText = "Your item has been safely delivered.";
+            }
+
+            setTimeout(() => {
+                resetView();
+            }, 5000);
+        }
+
+        async function pollStatus() {
+            if(!currentUser) return;
+            if(document.getElementById('successPage').style.display === 'flex') return;
+
+            try {
+                const res = await fetch(`${BASE_URL}/active_job/${currentUser}`);
+                
+                if(res.status === 404) {
+                    if(currentJobId && !isCancelling && (lastJobStatus === 'assigned' || lastJobStatus === 'active')) {
+                        showSuccess();
+                    } else {
+                        resetView();
+                    }
+                    currentJobId = null; 
+                } else {
+                    const data = await res.json();
+                    document.getElementById('bookingForm').style.display = 'none';
+                    document.getElementById('statusPage').style.display = 'flex';
+                    renderStatus(data);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function renderStatus(data) {
+            const details = data.details;
+            currentJobId = details.id;
+            currentJobType = data.job_type; 
+            lastJobStatus = data.status; 
+            
+            const titleEl = document.getElementById('statusTitle');
+            const iconEl = document.getElementById('statusIcon');
+            const stepAssigned = document.getElementById('stepAssigned');
+            
+            if(data.job_type === 'ride') {
+                titleEl.innerText = "Your Ride";
+                iconEl.className = "fa-solid fa-car text-3xl text-indigo-600";
+            } else {
+                titleEl.innerText = "Your Package";
+                iconEl.className = "fa-solid fa-box-open text-3xl text-blue-600";
+            }
+
+            document.getElementById('statusDesc').innerText = `Status: ${data.status.toUpperCase()}`;
+            // PRICE (Rupees)
+            document.getElementById('statusPrice').innerText = details.price ? `₹${details.price.toFixed(2)}` : '';
+            
+            const driverName = details.driver ? details.driver.name : "Matching...";
+            document.getElementById('driverText').innerText = driverName;
+
+            if(details.driver) {
+                stepAssigned.className = "flex flex-col items-center gap-1 text-indigo-600";
+                stepAssigned.children[0].className = "w-3 h-3 rounded-full bg-indigo-600";
+            } else {
+                stepAssigned.className = "flex flex-col items-center gap-1 text-gray-400";
+                stepAssigned.children[0].className = "w-3 h-3 rounded-full bg-gray-300";
+            }
+
+            const poolDiv = document.getElementById('poolOffer');
+            if(data.job_type === 'ride' && details.pool_status === 'pending_rider') {
+                poolDiv.style.display = 'block';
+                setTimeout(() => poolDiv.classList.remove('translate-y-full'), 100); 
+            } else {
+                poolDiv.style.display = 'none';
+                poolDiv.classList.add('translate-y-full');
+            }
+        }
+
+        async function bookRide() {
+            try {
+                const res = await fetch(`${BASE_URL}/ride_request/`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({
+                        user_name: currentUser,
+                        source: document.getElementById('source').value,
+                        destination: document.getElementById('destination').value
+                    })
+                });
+                if(!res.ok) throw await res.json();
+                pollStatus();
+            } catch(e) { showError(e.detail); }
+        }
+
+        async function bookCourier() {
+            try {
+                const res = await fetch(`${BASE_URL}/courier_request/`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({
+                        user_name: currentUser,
+                        source: document.getElementById('c_source').value,
+                        destination: document.getElementById('c_destination').value,
+                        package_size: document.getElementById('c_size').value
+                    })
+                });
+                if(!res.ok) throw await res.json();
+                pollStatus();
+            } catch(e) { showError(e.detail); }
+        }
+
+        async function answerPool(yes) {
+            if(!yes) { document.getElementById('poolOffer').style.display = 'none'; return; }
+            await fetch(`${BASE_URL}/pool/approve/${currentJobId}`, {method:'POST'});
+            pollStatus();
+        }
+
+        async function cancelJob() {
+            if(!confirm("Are you sure you want to cancel?")) return;
+            isCancelling = true; 
+            let endpoint = currentJobType === 'ride' ? 'cancel_ride' : 'cancel_courier';
+            try {
+                const res = await fetch(`${BASE_URL}/${endpoint}/${currentJobId}`, {method:'POST'});
+                if(!res.ok) throw await res.json();
+                pollStatus();
+            } catch(e) { 
+                showError("Failed to cancel"); 
+                isCancelling = false; 
+            }
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('msg');
+            el.innerText = msg || "Error";
+            setTimeout(() => el.innerText = "", 3000);
+        }
+
+        init();
+    </script>
+</body>
+</html>

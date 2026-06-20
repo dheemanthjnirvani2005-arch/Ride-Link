@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen font-sans p-4 md:p-8">
+
+    <div class="container mx-auto max-w-full">
+        
+        <div class="flex items-center gap-4 mb-8">
+            <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                <i class="fa-solid fa-chart-line text-3xl text-white"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white tracking-wide">Live Operations</h1>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+            
+            <!-- All Rides Panel -->
+            <div class="flex-grow lg:w-1/3 fade-in">
+                <div class="glass rounded-3xl shadow-2xl overflow-hidden h-[600px] flex flex-col">
+                    <div class="bg-indigo-900/5 p-6 border-b border-indigo-100">
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-car text-indigo-600"></i> Passenger Rides
+                        </h2>
+                    </div>
+                    <div class="overflow-auto flex-grow p-2">
+                        <table class="min-w-full">
+                            <thead class="bg-white/50 sticky top-0 backdrop-blur-md">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Trip Info</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Price</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Pooled?</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ridesTbody" class="divide-y divide-gray-100">
+                                <tr><td colspan="5" class="p-6 text-center text-gray-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courier Panel -->
+            <div class="flex-grow lg:w-1/3 fade-in" style="animation-delay: 0.1s;">
+                <div class="glass rounded-3xl shadow-2xl overflow-hidden h-[600px] flex flex-col">
+                    <div class="bg-blue-900/5 p-6 border-b border-blue-100">
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-box-open text-blue-600"></i> Courier Jobs
+                        </h2>
+                    </div>
+                    <div class="overflow-auto flex-grow p-2">
+                        <table class="min-w-full">
+                            <thead class="bg-white/50 sticky top-0 backdrop-blur-md">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Trip Info</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Price</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Pooled?</th>
+                                </tr>
+                            </thead>
+                            <tbody id="couriersTbody" class="divide-y divide-gray-100">
+                                <tr><td colspan="5" class="p-6 text-center text-gray-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Driver Panel -->
+            <div class="flex-shrink-0 lg:w-1/4 fade-in" style="animation-delay: 0.2s;">
+                <div class="glass rounded-3xl shadow-2xl overflow-hidden h-[600px] flex flex-col">
+                    <div class="bg-emerald-900/5 p-6 border-b border-emerald-100">
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-id-card text-emerald-600"></i> Fleet
+                        </h2>
+                    </div>
+                    <div class="overflow-auto flex-grow p-2">
+                        <table class="min-w-full">
+                            <thead class="bg-white/50 sticky top-0 backdrop-blur-md">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Driver</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase">Box?</th>
+                                </tr>
+                            </thead>
+                            <tbody id="driversTbody" class="divide-y divide-gray-100">
+                                <tr><td colspan="3" class="p-6 text-center text-gray-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const ridesTbody = document.getElementById('ridesTbody');
+        const driversTbody = document.getElementById('driversTbody');
+        const couriersTbody = document.getElementById('couriersTbody');
+        const BASE_URL = "http://127.0.0.1:9000";
+
+        function getStatusBadge(status) {
+            const styles = {
+                'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                'assigned': 'bg-blue-100 text-blue-800 border-blue-200',
+                'completed': 'bg-green-100 text-green-800 border-green-200',
+                'cancelled': 'bg-red-100 text-red-800 border-red-200'
+            };
+            const cls = styles[status] || 'bg-gray-100 text-gray-800 border-gray-200';
+            return `<span class="${cls} text-[10px] font-bold px-2 py-1 rounded-full border border-opacity-50 uppercase tracking-wide">${status}</span>`;
+        }
+
+        function getDriverStatusBadge(status) {
+             const styles = {
+                'available': 'bg-emerald-100 text-emerald-800',
+                'busy': 'bg-amber-100 text-amber-800',
+                'offline': 'bg-gray-200 text-gray-600'
+            };
+            const cls = styles[status] || 'bg-gray-100';
+            return `<span class="${cls} text-[10px] font-bold px-2 py-1 rounded-full uppercase">${status}</span>`;
+        }
+
+        function formatPrice(price) {
+            if (price === null || price === undefined) return '-';
+            return `₹${Number(price).toFixed(0)}`;
+        }
+
+        async function fetchData() {
+            // Rides
+            try {
+                const res = await fetch(`${BASE_URL}/rides`);
+                const rides = await res.json();
+                
+                if (!rides.length) ridesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400 text-sm">No rides.</td></tr>';
+                else {
+                    ridesTbody.innerHTML = rides.map(r => {
+                        const pooledBadge = r.is_pooled 
+                            ? `<span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-xs font-bold border border-indigo-200"><i class="fa-solid fa-users-viewfinder mr-1"></i>Pooled</span>` 
+                            : `<span class="text-gray-300 text-xs">-</span>`;
+                        
+                        return `
+                        <tr class="hover:bg-indigo-50/50 transition-colors">
+                            <td class="px-4 py-3 text-xs font-bold text-gray-400">#${r.id}</td>
+                            <td class="px-4 py-3">
+                                <div class="text-sm font-bold text-gray-800">${r.user_name}</div>
+                                <div class="text-[10px] text-gray-500 flex items-center gap-1">
+                                    <span>${r.source}</span> <i class="fa-solid fa-arrow-right text-gray-300"></i> <span>${r.destination}</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-bold text-gray-700">${formatPrice(r.price)}</td>
+                            <td class="px-4 py-3">${getStatusBadge(r.status)}</td>
+                            <td class="px-4 py-3">${pooledBadge}</td>
+                        </tr>`;
+                    }).join('');
+                }
+            } catch (e) { console.error(e); }
+
+            // Couriers
+            try {
+                const res = await fetch(`${BASE_URL}/couriers`);
+                const couriers = await res.json();
+                
+                if (!couriers.length) couriersTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400 text-sm">No packages.</td></tr>';
+                else {
+                    couriersTbody.innerHTML = couriers.map(c => {
+                        const pooledBadge = c.is_pooled 
+                            ? `<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-bold border border-blue-200"><i class="fa-solid fa-link mr-1"></i>Pooled</span>` 
+                            : `<span class="text-gray-300 text-xs">-</span>`;
+
+                        return `
+                        <tr class="hover:bg-blue-50/50 transition-colors">
+                            <td class="px-4 py-3 text-xs font-bold text-gray-400">#${c.id}</td>
+                            <td class="px-4 py-3">
+                                <div class="text-sm font-bold text-gray-800">${c.user_name}</div>
+                                <div class="text-[10px] text-gray-500 flex items-center gap-1">
+                                    <span>${c.source}</span> <i class="fa-solid fa-arrow-right text-gray-300"></i> <span>${c.destination}</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-bold text-gray-700">${formatPrice(c.price)}</td>
+                            <td class="px-4 py-3">${getStatusBadge(c.status)}</td>
+                            <td class="px-4 py-3">${pooledBadge}</td>
+                        </tr>`;
+                    }).join('');
+                }
+            } catch (e) { console.error(e); }
+
+            // Drivers
+            try {
+                const res = await fetch(`${BASE_URL}/drivers/`);
+                const drivers = await res.json();
+                
+                if (!drivers.length) driversTbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400 text-sm">No drivers.</td></tr>';
+                else {
+                    driversTbody.innerHTML = drivers.map(d => `
+                        <tr class="hover:bg-emerald-50/50 transition-colors">
+                            <td class="px-4 py-3">
+                                <div class="font-bold text-gray-800 text-sm">${d.name}</div>
+                                <div class="text-[10px] text-gray-400">ID: ${d.id}</div>
+                            </td>
+                            <td class="px-4 py-3">${getDriverStatusBadge(d.status)}</td>
+                            <td class="px-4 py-3 text-center">
+                                ${d.is_courier ? '<i class="fa-solid fa-check-circle text-emerald-500"></i>' : '<span class="text-gray-200">-</span>'}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        fetchData();
+        setInterval(fetchData, 3000);
+    </script>
+</body>
+</html>
